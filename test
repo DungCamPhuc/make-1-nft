@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract MyNFT is ERC721Enumerable, Ownable {
+    using Strings for uint256;
+
+    // Base URI for metadata
+    string private _baseTokenURI;
+
+    // Optional mapping for token names
+    mapping(uint256 => string) private _tokenNames;
+
+    constructor(string memory name, string memory symbol, string memory baseTokenURI) ERC721(name, symbol) {
+        _baseTokenURI = baseTokenURI;
+    }
+
+    // Set the base URI for metadata
+    function setBaseURI(string memory baseTokenURI) external onlyOwner {
+        _baseTokenURI = baseTokenURI;
+    }
+
+    // Mint NFT
+    function mintNFT(address to, uint256 tokenId) external onlyOwner {
+        _mint(to, tokenId);
+    }
+
+    // Optional: Set a custom name for the token
+    function setTokenName(uint256 tokenId, string memory name) external {
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not owner nor approved");
+        _tokenNames[tokenId] = name;
+    }
+
+    // Optional: Get the name of the token
+    function getTokenName(uint256 tokenId) external view returns (string memory) {
+        return _tokenNames[tokenId];
+    }
+
+    // Optional: Override base function to return custom token URI
+    function _baseURI() internal view override returns (string memory) {
+        return _baseTokenURI;
+    }
+}
